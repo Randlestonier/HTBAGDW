@@ -142,21 +142,34 @@
 
         createWordRow(guess);
 
-        // Check letters and update the display
+        // Clone wordOfTheDay and guess to arrays for marking
+        let wordArray = wordOfTheDay.split('');
+        let guessArray = guess.split('');
+
+        // First pass: mark correct letters in correct position
         let correctCount = 0;
         for (let i = 0; i < 5; i++) {
             const box = grid[grid.length - 1].children[i];
-            const letter = guess[i];
-            if (letter === wordOfTheDay[i]) {
+            if (guessArray[i] === wordArray[i]) {
                 box.classList.add('correct'); // Correct letter and position (green)
+                wordArray[i] = null; // Mark this letter as used
+                guessArray[i] = null; // Mark this guess letter as processed
                 correctCount++;
-            } else if (wordOfTheDay.includes(letter)) {
+            }
+        }
+
+        // Second pass: mark correct letters in wrong position
+        for (let i = 0; i < 5; i++) {
+            const box = grid[grid.length - 1].children[i];
+            if (guessArray[i] !== null && wordArray.includes(guessArray[i])) {
                 box.classList.add('present'); // Correct letter, wrong position (yellow)
-            } else {
+                wordArray[wordArray.indexOf(guessArray[i])] = null; // Mark as used
+            } else if (guessArray[i] !== null) {
                 box.classList.add('absent'); // Incorrect letter (gray)
             }
         }
 
+        // Check win condition
         if (correctCount === 5) {
             document.getElementById('messageDisplay').innerText = "Congrats! You guessed the word!";
         } else if (attempts >= maxAttempts) {
@@ -169,4 +182,3 @@
 
 </body>
 </html>
-
