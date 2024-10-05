@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Care Word Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="text"] {
+            font-size: 24px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .word-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .letter-box {
+            width: 50px;
+            height: 50px;
+            font-size: 32px;
+            font-weight: bold;
+            border: 2px solid #ccc;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+        }
+        .correct {
+            background-color: #6aaa64;
+            color: #fff;
+            border-color: #6aaa64;
+        }
+        .present {
+            background-color: #c9b458;
+            color: #fff;
+            border-color: #c9b458;
+        }
+        .absent {
+            background-color: #787c7e;
+            color: #fff;
+            border-color: #787c7e;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Guess the Animal Care Word!</h1>
+    <p>Guess the word - it's often dog or animal professional carer specific, but not always! HTBAGDW - never knowingly dull.</p>
+    
+    <input type="text" id="guessInput" maxlength="5" placeholder="Guess a word">
+    <button onclick="submitGuess()">Submit</button>
+    
+    <div id="wordGrid"></div>
+    <div class="message" id="messageDisplay"></div>
+</div>
+
+<script>
+    // Predefined list of words based on dog care, animal welfare, licensing, and general topics
+    const wordList = [
+        // Dog care and animal care words
+        "LEASH", "CRATE", "TREAT", "FETCH", "TRAIN", "PAWED", 
+        "BRUSH", "KENNEL", "GROOM", "SCOOP", "VETTE", "CANINE", 
+        "HARNESS", "MUZZLE", "LEPTOS", "PARVO", "RABIES", "DISTEM",
+        "BARKER", "LITTER", "COLLAR", "WHIST", "BOARD", "SNIFFS",
+        
+        // Behavior and welfare
+        "WHINE", "BARKS", "SOCIAL", "REWARD", "PUPPY", "LOOSE", 
+        "SNIFF", "NIPPER", "STALK", "TREATS", "CALM", "STRESS", 
+        "CRATE", "RECALL", "STIMUL", "KONGS", "STAY", "FOCUS", 
+        
+        // UK animal establishment licensing topics
+        "DEFRA", "KENNEL", "LICENSE", "BOARD", "BREED", "RESCUE", 
+        "HOUSING", "STAFF", "RULES", "CHECKS", "SAFETY", "FIRST", 
+        "WELFARE", "GUIDES", "HEALTH", "TICKET", "INSURE", "POLICY",
+        
+        // General words (for variety and fun)
+        "BROWN", "PAPER", "FENCE", "PLANT", "CHAIR", "COFFEE", 
+        "STOOL", "TABLE", "GLASS", "FUDGE", "SHORT", "GINNY", 
+        "HOUSE", "APPLE", "BRICK", "BREAD", "WATER", "HORSE", 
+        "LAMPS", "BREAD", "NIGHT", "GREEN", "SLOPE", "GUEST"
+    ];
+
+    // Select a random word from the word list
+    let wordOfTheDay = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
+
+    let maxAttempts = 6;
+    let attempts = 0;
+    let grid = [];
+
+    function createWordRow(word) {
+        const row = document.createElement('div');
+        row.className = 'word-row';
+        for (let i = 0; i < word.length; i++) {
+            const box = document.createElement('div');
+            box.className = 'letter-box';
+            box.textContent = word[i];
+            row.appendChild(box);
+        }
+        document.getElementById('wordGrid').appendChild(row);
+        grid.push(row);
+    }
+
+    function submitGuess() {
+        const guess = document.getElementById('guessInput').value.toUpperCase();
+        if (guess.length !== 5) {
+            document.getElementById('messageDisplay').innerText = "Please enter a 5-letter word.";
+            return;
+        }
+
+        attempts++;
+        document.getElementById('guessInput').value = '';
+
+        createWordRow(guess);
+
+        // Check letters and update the display
+        let correctCount = 0;
+        for (let i = 0; i < 5; i++) {
+            const box = grid[grid.length - 1].children[i];
+            const letter = guess[i];
+            if (letter === wordOfTheDay[i]) {
+                box.classList.add('correct'); // Correct letter and position (green)
+                correctCount++;
+            } else if (wordOfTheDay.includes(letter)) {
+                box.classList.add('present'); // Correct letter, wrong position (yellow)
+            } else {
+                box.classList.add('absent'); // Incorrect letter (gray)
+            }
+        }
+
+        if (correctCount === 5) {
+            document.getElementById('messageDisplay').innerText = "Congrats! You guessed the word!";
+        } else if (attempts >= maxAttempts) {
+            document.getElementById('messageDisplay').innerText = "Sorry, you've used all your attempts! The word was " + wordOfTheDay;
+        } else {
+            document.getElementById('messageDisplay').innerText = "Attempts: " + attempts + "/" + maxAttempts;
+        }
+    }
+</script>
+
+</body>
+</html>
 
