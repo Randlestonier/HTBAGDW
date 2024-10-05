@@ -141,35 +141,39 @@
 
         createWordRow(guess);
 
-        // Clone wordOfTheDay and guess to arrays for marking
+        // Convert wordOfTheDay and guess to arrays for marking
         let wordArray = wordOfTheDay.split('');
         let guessArray = guess.split('');
 
-        // Temporary arrays to track correct positions
-        let markedCorrect = Array(5).fill(false);
-        let markedPresent = Array(5).fill(false);
+        // Track used letters
+        let wordUsed = Array(5).fill(false);  // Track used letters in wordOfTheDay
+        let guessUsed = Array(5).fill(false); // Track used letters in guess
 
-        // First pass: mark correct letters in correct position
+        // First pass: mark letters in correct position
         let correctCount = 0;
         for (let i = 0; i < 5; i++) {
             const box = grid[grid.length - 1].children[i];
             if (guessArray[i] === wordArray[i]) {
-                box.classList.add('correct'); // Correct letter and position (green)
-                markedCorrect[i] = true;
-                wordArray[i] = null; // Mark this letter as used
+                box.classList.add('correct'); // Correct letter in correct position (green)
+                wordUsed[i] = true;  // Mark as used in wordOfTheDay
+                guessUsed[i] = true; // Mark as used in guess
                 correctCount++;
             }
         }
 
-        // Second pass: mark correct letters in wrong position
+        // Second pass: mark correct letters in the wrong position
         for (let i = 0; i < 5; i++) {
-            const box = grid[grid.length - 1].children[i];
-            if (!markedCorrect[i] && wordArray.includes(guessArray[i]) && !markedPresent[wordArray.indexOf(guessArray[i])]) {
-                box.classList.add('present'); // Correct letter, wrong position (yellow)
-                markedPresent[wordArray.indexOf(guessArray[i])] = true; // Mark as used in the word
-                wordArray[wordArray.indexOf(guessArray[i])] = null; // Mark as used in the guess
-            } else if (!markedCorrect[i]) {
-                box.classList.add('absent'); // Incorrect letter (gray)
+            if (!guessUsed[i]) {
+                const box = grid[grid.length - 1].children[i];
+                const foundIndex = wordArray.findIndex(
+                    (letter, index) => letter === guessArray[i] && !wordUsed[index]
+                );
+                if (foundIndex !== -1) {
+                    box.classList.add('present'); // Correct letter in wrong position (yellow)
+                    wordUsed[foundIndex] = true; // Mark as used
+                } else {
+                    box.classList.add('absent'); // Incorrect letter (gray)
+                }
             }
         }
 
