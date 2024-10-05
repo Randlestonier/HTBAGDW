@@ -84,7 +84,7 @@
 <body>
 
     <h1>Solve the Pet Carer's "Word" Puzzle</h1>
-    <p>Choose a word length and difficulty level to get started:</p>
+    <p>Solve the HTBAGDW "Word" Puzzle. Often the word will be dog or pet care related. But not always. HTBAGDW - never knowingly dull! Choose a word length and difficulty level to get started:</p>
 
     <div>
         <button class="difficulty-btn" onclick="setDifficulty(4)">4-Letter Words</button>
@@ -233,29 +233,30 @@
             checkGameStatus(result);
         }
 
+        // Logic to handle marking letters correctly, yellow, or gray
         function evaluateGuess(guess, word) {
-            const result = Array(selectedWordLength).fill('absent');
-            const wordArray = word.split('');
-            const usedIndexes = [];
+            const result = Array(selectedWordLength).fill('absent'); // Initialize all as absent (gray)
+            const wordArray = word.split(''); // Convert word to array
+            const letterCount = {}; // Count occurrences of each letter in the word
 
-            // First pass: correct letters
+            // Count the occurrences of each letter in the word
+            wordArray.forEach(letter => {
+                letterCount[letter] = (letterCount[letter] || 0) + 1;
+            });
+
+            // First pass: mark letters in the correct position (Green)
             for (let i = 0; i < selectedWordLength; i++) {
                 if (guess[i] === wordArray[i]) {
-                    result[i] = 'correct';
-                    usedIndexes.push(i);
+                    result[i] = 'correct'; // Mark as correct (green)
+                    letterCount[guess[i]]--; // Decrease count for this letter
                 }
             }
 
-            // Second pass: present letters
+            // Second pass: mark letters in the wrong position (Yellow)
             for (let i = 0; i < selectedWordLength; i++) {
-                if (result[i] !== 'correct') {
-                    const foundIndex = wordArray.findIndex(
-                        (letter, index) => letter === guess[i] && !usedIndexes.includes(index)
-                    );
-                    if (foundIndex !== -1) {
-                        result[i] = 'present';
-                        usedIndexes.push(foundIndex);
-                    }
+                if (result[i] !== 'correct' && wordArray.includes(guess[i]) && letterCount[guess[i]] > 0) {
+                    result[i] = 'present'; // Mark as present (yellow)
+                    letterCount[guess[i]]--; // Decrease count for this letter
                 }
             }
 
