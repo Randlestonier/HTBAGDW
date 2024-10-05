@@ -1,22 +1,25 @@
-Certainly! Below is a simple HTML code snippet th<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wordle-Inspired Word Puzzle</title>
+    <title>Solve the Pet Carer's "Word" Puzzle</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
             background-color: #f0f0f0;
+            margin: 0;
         }
-        .grid {
+        .grid-container {
             display: grid;
             grid-template-columns: repeat(5, 50px);
             grid-gap: 5px;
+            margin-bottom: 20px;
         }
         .cell {
             width: 50px;
@@ -27,139 +30,268 @@ Certainly! Below is a simple HTML code snippet th<!DOCTYPE html>
             align-items: center;
             font-size: 24px;
             background-color: white;
+            font-weight: bold;
         }
-        input {
+        .correct {
+            background-color: #6aaa64;
+            color: white;
+            border-color: #6aaa64;
+        }
+        .present {
+            background-color: #c9b458;
+            color: white;
+            border-color: #c9b458;
+        }
+        .absent {
+            background-color: #787c7e;
+            color: white;
+            border-color: #787c7e;
+        }
+        input[type="text"] {
             width: 100%;
             height: 100%;
             text-align: center;
             font-size: 24px;
             border: none;
+            outline: none;
+            background-color: transparent;
+        }
+        .submit-btn, .reset-btn, .hint-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .difficulty-btn {
+            margin: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .leaderboard {
+            margin-top: 20px;
+        }
+        .message {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .error {
+            color: red;
         }
     </style>
 </head>
 <body>
-    <div class="grid">
-        <!-- Create a 5x6 grid for the word puzzle -->
-        <!-- Each cell contains an input field for letter entry -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
 
-        <!-- Repeat the above row five more times to complete the grid -->
-        <!-- Row 2 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
+    <h1>Solve the Pet Carer's "Word" Puzzle</h1>
+    <p>Choose a word length and difficulty level to get started:</p>
 
-        <!-- Row 3 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
+    <div>
+        <button class="difficulty-btn" onclick="setDifficulty(4)">4-Letter Words</button>
+        <button class="difficulty-btn" onclick="setDifficulty(5)">5-Letter Words</button>
+        <button class="difficulty-btn" onclick="setDifficulty(6)">6-Letter Words</button>
+        <button class="difficulty-btn" onclick="startTimer()">Timed Challenge (5-Letters)</button>
+    </div>
 
-        <!-- Row 4 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
+    <div id="grid" class="grid-container" style="display:none;"></div>
 
-        <!-- Row 5 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type"text" maxlength= "1"> </ div >
-         div > 
-         div > 
-         div > 
-         div > 
+    <button class="submit-btn" style="display:none;" onclick="submitGuess()">Check Guess</button>
+    <button class="reset-btn" style="display:none;" onclick="resetGame()">Play Again</button>
+    <button class="hint-btn" style="display:none;" onclick="showHint()">Hint</button>
 
-         <!-- Row 6 -->
-         div > 
-         div > 
-         div > 
-         div > 
-         div > 
+    <p class="message" id="message"></p>
+    <p id="timer" style="font-size:18px; display:none;"></p>
 
-     </ div >
- </ body >
- </ html >
-            width: 50px;
-            height: 50px;
-            border: 2px solid #ccc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            background-color: white;
+    <!-- Leaderboard Section -->
+    <div class="leaderboard">
+        <h2>Leaderboard</h2>
+        <div id="leaderboardDisplay"></div>
+        <h2>Leaderboard of the Week</h2>
+        <div id="weeklyLeaderboardDisplay"></div>
+    </div>
+
+    <script>
+        const generalWords = ["HOUSE", "CHAIR", "PLANT", "FOOD", "WATER", "APPLE", "TABLE", "BREAD"];
+        const animalWords = ["LEASH", "CRATE", "TREAT", "FETCH", "PAWED", "BRUSH", "KENNEL", "GROOM", "SCOOP", "CANINE", "HARNESS", "MUZZLE", "PARVO", "RABIES", "DISTEM"];
+        let wordHistory = [];
+        let currentRow = 0;
+        let selectedWordLength = 5;
+        let wordOfTheDay = "";
+        let timer;
+        let difficulty = 5;
+        let gamesPlayed = 0;
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || {};
+        let weeklyLeaderboard = JSON.parse(localStorage.getItem('weeklyLeaderboard')) || {};
+        let hintUsed = false;
+
+        // Difficulty selector
+        function setDifficulty(wordLength) {
+            selectedWordLength = wordLength;
+            resetGame();
+            document.getElementById('grid').style.display = 'grid';
+            document.querySelector('.submit-btn').style.display = 'block';
+            document.querySelector('.hint-btn').style.display = 'block';
+            currentRow = 0;
         }
-        input {
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            font-size: 24px;
-            border: none;
+
+        // Timed Challenge
+        function startTimer() {
+            setDifficulty(5);
+            document.getElementById('timer').style.display = 'block';
+            let timeLeft = 30; // 30 seconds timer
+            document.getElementById('timer').innerText = `Time left: ${timeLeft}s`;
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = `Time left: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('message').innerText = 'Time is up!';
+                    document.querySelector('.submit-btn').style.display = 'none';
+                    document.querySelector('.reset-btn').style.display = 'block';
+                }
+            }, 1000);
         }
-    </style>
-</head>
-<body>
-    <div class="grid">
-        <!-- Create a 5x6 grid for the word puzzle -->
-        <!-- Each cell contains an input field for letter entry -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
 
-        <!-- Repeat the above row five more times to complete the grid -->
-        <!-- Row 2 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
+        // Show hint
+        function showHint() {
+            hintUsed = true;
+            alert(`Hint: The first letter is '${wordOfTheDay[0]}'`);
+        }
 
-        <!-- Row 3 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
+        // Dynamically create grid based on word length
+        function createGrid(wordLength) {
+            const gridContainer = document.getElementById('grid');
+            gridContainer.innerHTML = ""; // Clear previous grid
+            for (let i = 0; i < wordLength * 6; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 1; // Restrict to one letter
+                input.addEventListener('keypress', function(event) {
+                    // Restrict input to alphabetic characters only
+                    if (!/[a-zA-Z]/.test(event.key)) {
+                        event.preventDefault();
+                    }
+                });
+                cell.appendChild(input);
+                gridContainer.appendChild(cell);
+            }
+        }
 
-        <!-- Row 4 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type="text" maxlength="1"></div>
+        // Choose random word from lists based on word length
+        function getNewWord() {
+            let newWord;
+            let combinedWords = [...animalWords, ...generalWords].filter(word => word.length === selectedWordLength);
+            do {
+                newWord = combinedWords[Math.floor(Math.random() * combinedWords.length)].toUpperCase();
+            } while (wordHistory.includes(newWord));
+            wordHistory.push(newWord);
+            return newWord;
+        }
 
-        <!-- Row 5 -->
-        <div class="cell"><input type="text" maxlength="1"></div>
-        <div class="cell"><input type"text" maxlength= "1"> </ div >
-         div > 
-         div > 
-         div > 
-         div > 
+        function resetGame() {
+            wordOfTheDay = getNewWord();
+            createGrid(selectedWordLength);
+            document.getElementById('message').innerText = '';
+            document.querySelector('.submit-btn').style.display = 'block';
+            document.querySelector('.reset-btn').style.display = 'none';
+            document.querySelector('.hint-btn').style.display = 'block';
+            clearInterval(timer);
+            document.getElementById('timer').style.display = 'none';
+        }
 
-         <!-- Row 6 -->
-         div > 
-         div > 
-         div > 
-         div > 
-         div > 
+        // Submit guess and validate input
+        function submitGuess() {
+            const cells = document.querySelectorAll('.cell input');
+            const guess = [];
+            const rowStartIndex = currentRow * selectedWordLength;
 
-     </ div >
- </ body >
- </ html >
-```
+            // Collect guess and validate
+            for (let i = rowStartIndex; i < rowStartIndex + selectedWordLength; i++) {
+                const input = cells[i].value.toUpperCase();
+                if (!input) {
+                    document.getElementById('message').innerText = 'Please fill in all boxes before submitting!';
+                    return;
+                }
+                guess.push(input);
+            }
 
-### Explanation:
-- **Grid Layout**: The HTML uses a CSS grid to create a layout of cells, each containing an input field where players can enter one letter.
-- **Input Fields**: Each input field is limited to one character using `maxlength= "1"` to mimic the behavior of Wordle.
-- **Styling**: Basic styling is applied to center the grid on the page and make it visually similar to Wordle.
+            // Compare guess with word of the day
+            const result = evaluateGuess(guess, wordOfTheDay);
+            for (let i = 0; i < selectedWordLength; i++) {
+                const cell = cells[rowStartIndex + i].parentElement;
+                if (result[i] === 'correct') {
+                    cell.classList.add('correct');
+                } else if (result[i] === 'present') {
+                    cell.classList.add('present');
+                } else {
+                    cell.classList.add('absent');
+                }
+            }
+            currentRow++;
+            checkGameStatus(result);
+        }
 
-To make this interactive like Wordle, you would need to add JavaScript to handle input validation, color changes based on correctness, and game logic. If you need help with that part, feel free to ask!
+        function evaluateGuess(guess, word) {
+            const result = Array(selectedWordLength).fill('absent');
+            const wordArray = word.split('');
+            const usedIndexes = [];
+
+            // First pass: correct letters
+            for (let i = 0; i < selectedWordLength; i++) {
+                if (guess[i] === wordArray[i]) {
+                    result[i] = 'correct';
+                    usedIndexes.push(i);
+                }
+            }
+
+            // Second pass: present letters
+            for (let i = 0; i < selectedWordLength; i++) {
+                if (result[i] !== 'correct') {
+                    const foundIndex = wordArray.findIndex(
+                        (letter, index) => letter === guess[i] && !usedIndexes.includes(index)
+                    );
+                    if (foundIndex !== -1) {
+                        result[i] = 'present';
+                        usedIndexes.push(foundIndex);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        function checkGameStatus(result) {
+            if (result.every(r => r === 'correct')) {
+                document.getElementById('message').innerText = "Congrats! You guessed the word!";
+                updateLeaderboard();
+                document.querySelector('.submit-btn').style.display = 'none';
+                document.querySelector('.reset-btn').style.display = 'block';
+            } else if (currentRow >= 6) {
+                document.getElementById('message').innerText = "Sorry, the word was " + wordOfTheDay;
+                document.querySelector('.submit-btn').style.display = 'none';
+                document.querySelector('.reset-btn').style.display = 'block';
+            }
+        }
+
+        function updateLeaderboard() {
+            gamesPlayed++;
+            const currentPlayer = "You";
+            leaderboard[currentPlayer] = leaderboard[currentPlayer] ? leaderboard[currentPlayer] + 1 : 1;
+            document.getElementById("leaderboardDisplay").innerText = `Games Played: ${leaderboard[currentPlayer]}`;
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+
+            // Weekly leaderboard update
+            updateWeeklyLeaderboard(currentPlayer);
+        }
+
+        function updateWeeklyLeaderboard(player) {
+            weeklyLeaderboard[player] = weeklyLeaderboard[player] ? weeklyLeaderboard[player] + 1 : 1;
+            document.getElementById("weeklyLeaderboardDisplay").innerText = `Weekly Rank: Games Played: ${weeklyLeaderboard[player]}`;
+            localStorage.setItem('weeklyLeaderboard', JSON.stringify(weeklyLeaderboard));
+        }
+    </script>
+
+</body>
+</html>
