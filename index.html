@@ -47,21 +47,6 @@
             background-color: #f0f0f0;
             border-radius: 8px;
         }
-        .correct {
-            background-color: #6aaa64; /* Green */
-            color: white;
-            border-color: #6aaa64;
-        }
-        .present {
-            background-color: #c9b458; /* Yellow */
-            color: white;
-            border-color: #c9b458;
-        }
-        .absent {
-            background-color: #787c7e; /* Gray */
-            color: white;
-            border-color: #787c7e;
-        }
         .input-box {
             width: 100%;
             height: 100%;
@@ -91,14 +76,6 @@
             margin-top: 10px;
             text-align: center;
         }
-        .leaderboard {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .leaderboard h2 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
@@ -119,14 +96,9 @@
 
         <button class="submit-btn" id="submitGuessBtn" style="display:none;" onclick="submitGuess()">Check Guess</button>
         <button class="reset-btn" id="playAgainBtn" style="display:none;" onclick="resetGame()">Play Again</button>
-        <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()">Hint? (Only works with one letter)</button>
+        <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()">Hint</button>
 
         <p id="message" class="message"></p>
-    </div>
-
-    <div class="leaderboard">
-        <h2>Leaderboard</h2>
-        <div id="leaderboardDisplay"></div>
     </div>
 
     <script>
@@ -137,11 +109,13 @@
         let currentRow = 0;
         let hintUsed = false;
 
+        // Set word length and reset the game
         function setDifficulty(wordLength) {
             selectedWordLength = wordLength;
             resetGame();
         }
 
+        // Reset the game and create grid
         function resetGame() {
             wordOfTheDay = getNewWord();
             currentRow = 0;
@@ -154,14 +128,17 @@
             document.getElementById('hintBtn').style.display = 'block';
         }
 
+        // Get a new word based on selected difficulty
         function getNewWord() {
             let combinedWords = [...animalWords, ...generalWords].filter(word => word.length === selectedWordLength);
             return combinedWords[Math.floor(Math.random() * combinedWords.length)].toUpperCase();
         }
 
+        // Create grid based on word length
         function createGrid(wordLength) {
             const gridContainer = document.getElementById('grid');
-            gridContainer.innerHTML = "";
+            gridContainer.innerHTML = ""; // Clear previous grid
+            gridContainer.style.gridTemplateColumns = `repeat(${wordLength}, 50px)`;
             for (let i = 0; i < wordLength * 6; i++) {
                 const cell = document.createElement('div');
                 cell.classList.add('cell');
@@ -174,10 +151,12 @@
             }
         }
 
+        // Clear the game grid
         function clearGrid() {
             document.getElementById('grid').innerHTML = '';
         }
 
+        // Show a hint with one random letter
         function showHint() {
             if (!hintUsed) {
                 const hintLetter = wordOfTheDay[Math.floor(Math.random() * wordOfTheDay.length)];
@@ -188,8 +167,9 @@
             }
         }
 
+        // Handle guess submission (implement your own logic)
         function submitGuess() {
-            // Implement word check logic here
+            // Game logic to check the word goes here
             document.getElementById('playAgainBtn').style.display = 'block';
         }
     </script>
