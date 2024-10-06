@@ -134,8 +134,8 @@
     </div>
 
     <script>
-        const generalWords = ["HOUSE", "CHAIR", "PLANT", "FOOD", "WATER", "APPLE", "TABLE", "BREAD"];
-        const animalWords = ["LEASH", "CRATE", "TREAT", "FETCH", "PAWED", "BRUSH", "KENNEL", "GROOM", "SCOOP", "CANINE", "HARNESS", "MUZZLE", "PARVO", "RABIES", "DISTEM"];
+        let generalWords = ["HOUSE", "CHAIR", "PLANT", "FOOD", "WATER", "APPLE", "TABLE", "BREAD"];
+        let animalWords = ["LEASH", "CRATE", "TREAT", "FETCH", "PAWED", "BRUSH", "KENNEL", "GROOM", "SCOOP", "CANINE", "HARNESS", "MUZZLE", "PARVO", "RABIES", "DISTEM"];
         let wordHistory = [];
         let currentRow = 0;
         let selectedWordLength = 5;
@@ -144,7 +144,43 @@
         let gamesPlayed = 0;
         let hintUsed = false;
 
-        // Dynamically create grid based on word length
+        // Define setDifficulty function
+        function setDifficulty(wordLength) {
+            selectedWordLength = wordLength;
+            resetGame(); // Reset the game when word length changes
+        }
+
+        // Get a new word from the list
+        function getNewWord() {
+            let combinedWords = [...animalWords, ...generalWords].filter(word => word.length === selectedWordLength);
+            let newWord;
+            do {
+                newWord = combinedWords[Math.floor(Math.random() * combinedWords.length)].toUpperCase();
+            } while (wordHistory.includes(newWord));
+            wordHistory.push(newWord);
+            return newWord;
+        }
+
+        // Reset the game
+        function resetGame() {
+            wordOfTheDay = getNewWord();
+            currentRow = 0;
+            hintUsed = false; // Reset the hint usage status
+            clearGrid(); // Clear previous grid data
+            createGrid(selectedWordLength); // Create new grid based on word length
+            document.getElementById('message').innerText = '';
+            document.getElementById('submitGuessBtn').style.display = 'block';
+            document.getElementById('playAgainBtn').style.display = 'none';
+            document.getElementById('hintBtn').style.display = 'block'; // Ensure Hint button is visible
+        }
+
+        // Clear the grid
+        function clearGrid() {
+            const gridContainer = document.getElementById('grid');
+            gridContainer.innerHTML = ''; // Clear the entire grid content
+        }
+
+        // Create the grid based on word length
         function createGrid(wordLength) {
             const gridContainer = document.getElementById('grid');
             gridContainer.innerHTML = ""; // Clear previous grid
@@ -164,6 +200,7 @@
             }
         }
 
+        // Auto-jump to next box after typing a letter
         function handleInput(event) {
             const input = event.target;
             const nextInput = input.parentElement.nextElementSibling?.querySelector('input');
@@ -172,49 +209,16 @@
             }
         }
 
+        // Handle backspace and go to the previous input box
         function handleBackspace(event) {
             const input = event.target;
             const prevInput = input.parentElement.previousElementSibling?.querySelector('input');
-            if (event.key === 'Backspace' && input.value === '' && prevInput) {
-                prevInput.focus(); // Move to previous input on backspace
-            }
-        }
+            if (event.key === 'Backspace' && input.value === '' &&Here is the updated version of the code block. It addresses your earlier issues and ensures that the `setDifficulty()` function is properly defined, the `Hint` button is working, and everything is displayed correctly.
 
-        function setDifficulty(wordLength) {
-            selectedWordLength = wordLength;
-            resetGame(); // Reset the game when word length changes
-        }
-
-        function getNewWord() {
-            let combinedWords = [...animalWords, ...generalWords].filter(word => word.length === selectedWordLength);
-            let newWord;
-            do {
-                newWord = combinedWords[Math.floor(Math.random() * combinedWords.length)].toUpperCase();
-            } while (wordHistory.includes(newWord));
-            wordHistory.push(newWord);
-            return newWord;
-        }
-
-        function resetGame() {
-            wordOfTheDay = getNewWord();
-            currentRow = 0;
-            hintUsed = false; // Reset the hint usage status
-            clearGrid(); // Clear previous grid data
-            createGrid(selectedWordLength); // Create new grid based on word length
-            document.getElementById('message').innerText = '';
-            document.getElementById('submitGuessBtn').style.display = 'block';
-            document.getElementById('playAgainBtn').style.display = 'none';
-            document.getElementById('hintBtn').style.display = 'block'; // Ensure Hint button is visible
-        }
-
-        function clearGrid() {
-            const gridContainer = document.getElementById('grid');
-            gridContainer.innerHTML = ''; // Clear the entire grid content
-        }
-
-        // Hint System
-        function showHint() {
-            if (!hintUsed && wordOfTheDay.length > 2) {
-                let randomIndex;
-                do {
-                    randomIndex = Math.floor(Math.random() * (wordOfTheDay.length - 2)) +
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solve the Pet Carer's "Word" Puzzle</title
