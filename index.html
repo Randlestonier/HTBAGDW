@@ -204,7 +204,7 @@
             document.getElementById('message').innerText = '';
             document.getElementById('submitGuessBtn').style.display = 'block';
             document.getElementById('playAgainBtn').style.display = 'none';
-            document.getElementById('hintBtn').style.display = 'block';
+            document.getElementById('hintBtn').style.display = 'block'; // Ensure Hint button is visible
         }
 
         function clearGrid() {
@@ -217,89 +217,4 @@
             if (!hintUsed && wordOfTheDay.length > 2) {
                 let randomIndex;
                 do {
-                    randomIndex = Math.floor(Math.random() * (wordOfTheDay.length - 2)) + 1; // Avoid first and last letters
-                } while (randomIndex === 0 || randomIndex === wordOfTheDay.length - 1);
-                
-                alert(`Here's a hint: The letter at position ${randomIndex + 1} is "${wordOfTheDay[randomIndex]}"`);
-                hintUsed = true; // Only allow one hint per game
-            } else {
-                alert('No more hints available for this game!');
-            }
-        }
-
-        // Submit guess and validate input
-        function submitGuess() {
-            const cells = document.querySelectorAll('.cell input');
-            const guess = [];
-            const rowStartIndex = currentRow * selectedWordLength;
-
-            // Collect guess and validate
-            for (let i = rowStartIndex; i < rowStartIndex + selectedWordLength; i++) {
-                const input = cells[i].value.toUpperCase();
-                if (!input) {
-                    document.getElementById('message').innerText = 'Please fill in all boxes before submitting!';
-                    return;
-                }
-                guess.push(input);
-            }
-
-            // Compare guess with word of the day
-            const result = evaluateGuess(guess, wordOfTheDay);
-            for (let i = 0; i < selectedWordLength; i++) {
-                const cell = cells[rowStartIndex + i].parentElement;
-                if (result[i] === 'correct') {
-                    cell.classList.add('correct');
-                } else if (result[i] === 'present') {
-                    cell.classList.add('present');
-                } else {
-                    cell.classList.add('absent');
-                }
-            }
-            currentRow++;
-            checkGameStatus(result);
-        }
-
-        function evaluateGuess(guess, word) {
-            const result = Array(selectedWordLength).fill('absent'); // Initialize all as absent (gray)
-            const wordArray = word.split(''); // Convert word to array
-            const letterCount = {}; // Count occurrences of each letter in the word
-
-            // Count the occurrences of each letter in the word
-            wordArray.forEach(letter => {
-                letterCount[letter] = (letterCount[letter] || 0) + 1;
-            });
-
-            // First pass: mark letters in the correct position (Green)
-            for (let i = 0; i < selectedWordLength; i++) {
-                if (guess[i] === wordArray[i]) {
-                    result[i] = 'correct'; // Mark as correct (green)
-                    letterCount[guess[i]]--; // Decrease count for this letter
-                }
-            }
-
-            // Second pass: mark letters in the wrong position (Yellow)
-            for (let i = 0; i < selectedWordLength; i++) {
-                if (result[i] !== 'correct' && wordArray.includes(guess[i]) && letterCount[guess[i]] > 0) {
-                    result[i] = 'present'; // Mark as present (yellow)
-                    letterCount[guess[i]]--; // Decrease count for this letter
-                }
-            }
-
-            return result;
-        }
-
-        function checkGameStatus(result) {
-            if (result.every(r => r === 'correct')) {
-                document.getElementById('message').innerText = "Congrats! You guessed the word!";
-                document.getElementById('submitGuessBtn').style.display = 'none';
-                document.getElementById('playAgainBtn').style.display = 'block';
-            } else if (currentRow >= 6) {
-                document.getElementById('message').innerText = "Sorry, the word was " + wordOfTheDay;
-                document.getElementById('submitGuessBtn').style.display = 'none';
-                document.getElementById('playAgainBtn').style.display = 'block';
-            }
-        }
-    </script>
-
-</body>
-</html>
+                    randomIndex = Math.floor(Math.random() * (wordOfTheDay.length - 2)) +
