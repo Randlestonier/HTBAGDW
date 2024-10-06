@@ -120,7 +120,7 @@
 
         <button class="submit-btn" id="submitGuessBtn" style="display:none;" onclick="submitGuess()">Check Guess</button>
         <button class="reset-btn" id="playAgainBtn" style="display:none;" onclick="resetGame()">Play Again</button>
-        <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()">Hint</button>
+        <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()">Hint? (Only works with one letter, not every time you want to cheat and never with the last letter - and even then, Hint only works if I feel like it!)</button>
 
         <p id="message" class="message"></p>
         <p id="timer" style="font-size:18px; display:none;"></p>
@@ -141,8 +141,8 @@
         let selectedWordLength = 5;
         let wordOfTheDay = "";
         let timer;
-        let difficulty = 5;
         let gamesPlayed = 0;
+        let hintUsed = false;
 
         // Dynamically create grid based on word length
         function createGrid(wordLength) {
@@ -198,6 +198,7 @@
         function resetGame() {
             wordOfTheDay = getNewWord();
             currentRow = 0;
+            hintUsed = false; // Reset the hint usage status
             clearGrid(); // Clear previous grid data
             createGrid(selectedWordLength); // Create new grid based on word length
             document.getElementById('message').innerText = '';
@@ -209,6 +210,21 @@
         function clearGrid() {
             const gridContainer = document.getElementById('grid');
             gridContainer.innerHTML = ''; // Clear the entire grid content
+        }
+
+        // Hint System
+        function showHint() {
+            if (!hintUsed && wordOfTheDay.length > 2) {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * (wordOfTheDay.length - 2)) + 1; // Avoid first and last letters
+                } while (randomIndex === 0 || randomIndex === wordOfTheDay.length - 1);
+                
+                alert(`Here's a hint: The letter at position ${randomIndex + 1} is "${wordOfTheDay[randomIndex]}"`);
+                hintUsed = true; // Only allow one hint per game
+            } else {
+                alert('No more hints available for this game!');
+            }
         }
 
         // Submit guess and validate input
