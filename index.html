@@ -157,14 +157,26 @@
                 input.type = 'text';
                 input.className = 'input-box';
                 input.maxLength = 1; // Restrict to one letter
-                input.addEventListener('keypress', function(event) {
-                    // Restrict input to alphabetic characters only
-                    if (!/[a-zA-Z]/.test(event.key)) {
-                        event.preventDefault();
-                    }
-                });
+                input.addEventListener('input', handleInput);  // Handle auto-jump
+                input.addEventListener('keydown', handleBackspace); // Handle backspace
                 cell.appendChild(input);
                 gridContainer.appendChild(cell);
+            }
+        }
+
+        function handleInput(event) {
+            const input = event.target;
+            const nextInput = input.parentElement.nextElementSibling?.querySelector('input');
+            if (input.value.length === 1 && nextInput) {
+                nextInput.focus(); // Move to next input if there is one
+            }
+        }
+
+        function handleBackspace(event) {
+            const input = event.target;
+            const prevInput = input.parentElement.previousElementSibling?.querySelector('input');
+            if (event.key === 'Backspace' && input.value === '' && prevInput) {
+                prevInput.focus(); // Move to previous input on backspace
             }
         }
 
@@ -185,12 +197,18 @@
 
         function resetGame() {
             wordOfTheDay = getNewWord();
-            createGrid(selectedWordLength);
             currentRow = 0;
+            clearGrid(); // Clear previous grid data
+            createGrid(selectedWordLength); // Create new grid based on word length
             document.getElementById('message').innerText = '';
             document.getElementById('submitGuessBtn').style.display = 'block';
             document.getElementById('playAgainBtn').style.display = 'none';
             document.getElementById('hintBtn').style.display = 'block';
+        }
+
+        function clearGrid() {
+            const gridContainer = document.getElementById('grid');
+            gridContainer.innerHTML = ''; // Clear the entire grid content
         }
 
         // Submit guess and validate input
