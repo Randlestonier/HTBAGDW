@@ -30,7 +30,7 @@
         }
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, 50px);
+            grid-template-columns: repeat(5, 50px);
             grid-gap: 5px;
             justify-content: center;
             margin-bottom: 20px;
@@ -47,6 +47,21 @@
             background-color: #f0f0f0;
             border-radius: 8px;
         }
+        .correct {
+            background-color: #6aaa64; /* Green */
+            color: white;
+            border-color: #6aaa64;
+        }
+        .present {
+            background-color: #c9b458; /* Yellow */
+            color: white;
+            border-color: #c9b458;
+        }
+        .absent {
+            background-color: #787c7e; /* Gray */
+            color: white;
+            border-color: #787c7e;
+        }
         .input-box {
             width: 100%;
             height: 100%;
@@ -56,7 +71,7 @@
             outline: none;
             background-color: transparent;
         }
-        .difficulty-btn, .submit-btn, .reset-btn, .hint-btn {
+        .submit-btn, .reset-btn, .hint-btn {
             display: inline-block;
             padding: 10px 20px;
             margin: 10px;
@@ -67,7 +82,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .submit-btn:hover, .reset-btn:hover, .difficulty-btn:hover, .hint-btn:hover {
+        .submit-btn:hover, .reset-btn:hover, .hint-btn:hover {
             background-color: #0056b3;
         }
         .message {
@@ -82,96 +97,123 @@
 
     <div class="header">
         <h1>Solve the Pet Carer's "Word" Puzzle</h1>
-        <p>Solve the HTBAGDW "Word" Puzzle. Often the word will be dog or pet care related. But not always. HTBAGDW - never knowingly dull! Choose a word length and difficulty level to get started:</p>
+        <p>
+            Guess the 5-letter word! The word will often be related to 
+            pet care or dog care, but not always. Try your best, and see 
+            if you can solve the puzzle!
+        </p>
     </div>
 
     <div class="game-container">
-        <div class="difficulty-buttons">
-            <button class="difficulty-btn" onclick="setDifficulty(4)">4-Letter Words</button>
-            <button class="difficulty-btn" onclick="setDifficulty(5)">5-Letter Words</button>
-            <button class="difficulty-btn" onclick="setDifficulty(6)">6-Letter Words</button>
-        </div>
-
         <div id="grid" class="grid-container"></div>
 
         <button class="submit-btn" id="submitGuessBtn" style="display:none;" onclick="submitGuess()">Check Guess</button>
         <button class="reset-btn" id="playAgainBtn" style="display:none;" onclick="resetGame()">Play Again</button>
-        <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()">Hint</button>
-
         <p id="message" class="message"></p>
     </div>
 
     <script>
-        const generalWords = ["HOUSE", "CHAIR", "PLANT", "FOOD", "WATER"];
-        const animalWords = ["LEASH", "CRATE", "TREAT", "FETCH", "PAWED", "BRUSH", "KENNEL", "GROOM"];
-        let selectedWordLength = 5;
+        const words = ["LEASH", "CRATE", "TREAT", "FETCH", "PAWED", "BRUSH", "KENNEL", "GROOM"];
         let wordOfTheDay = "";
         let currentRow = 0;
-        let hintUsed = false;
 
-        // Set word length and reset the game
-        function setDifficulty(wordLength) {
-            selectedWordLength = wordLength;
-            resetGame();
-        }
-
-        // Reset the game and create grid
-        function resetGame() {
-            wordOfTheDay = getNewWord();
+        // Start the game with a 5-letter word
+        function startGame() {
+            wordOfTheDay = words[Math.floor(Math.random() * words.length)].toUpperCase();
             currentRow = 0;
-            hintUsed = false;
             clearGrid();
-            createGrid(selectedWordLength);
+            createGrid();
             document.getElementById('message').innerText = '';
             document.getElementById('submitGuessBtn').style.display = 'block';
             document.getElementById('playAgainBtn').style.display = 'none';
-            document.getElementById('hintBtn').style.display = 'block';
         }
 
-        // Get a new word based on selected difficulty
-        function getNewWord() {
-            let combinedWords = [...animalWords, ...generalWords].filter(word => word.length === selectedWordLength);
-            return combinedWords[Math.floor(Math.random() * combinedWords.length)].toUpperCase();
-        }
-
-        // Create grid based on word length
-        function createGrid(wordLength) {
+        // Create a 5x6 grid
+        function createGrid() {
             const gridContainer = document.getElementById('grid');
-            gridContainer.innerHTML = ""; // Clear previous grid
-            gridContainer.style.gridTemplateColumns = `repeat(${wordLength}, 50px)`;
-            for (let i = 0; i < wordLength * 6; i++) {
+            gridContainer.innerHTML = "";
+            for (let i = 0; i < 5 * 6; i++) {
                 const cell = document.createElement('div');
                 cell.classList.add('cell');
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.className = 'input-box';
                 input.maxLength = 1;
+                input.addEventListener('input', handleInput);
+                input.addEventListener('keydown', handleBackspace);
                 cell.appendChild(input);
                 gridContainer.appendChild(cell);
             }
         }
 
-        // Clear the game grid
+        // Move to the next input box on typing
+        function handleInput(event) {
+            const input = event.target;
+            if (input.value.length === 1) {
+                const nextInput = input.parentElement.nextElementSibling?.querySelector('input');
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        }
+
+        // Move back on backspace
+        function handleBackspace(event) {
+            if (event.key === 'Backspace' && event.target.value === '') {
+                const prevInput = event.target.parentElement.previousElementSibling?.querySelector('input');
+                if (prevInput) {
+                    prevInput.focus();
+                }
+            }
+        }
+
+        // Clear the grid for a new game
         function clearGrid() {
             document.getElementById('grid').innerHTML = '';
         }
 
-        // Show a hint with one random letter
-        function showHint() {
-            if (!hintUsed) {
-                const hintLetter = wordOfTheDay[Math.floor(Math.random() * wordOfTheDay.length)];
-                document.getElementById('message').innerText = `Hint: One letter is "${hintLetter}".`;
-                hintUsed = true;
-            } else {
-                document.getElementById('message').innerText = "Hint already used!";
+        // Handle submission of the guess
+        function submitGuess() {
+            const inputs = Array.from(document.querySelectorAll('.input-box'));
+            const userGuess = inputs.slice(currentRow * 5, (currentRow + 1) * 5).map(input => input.value.toUpperCase()).join('');
+
+            if (userGuess.length !== 5) {
+                document.getElementById('message').innerText = 'Please enter all 5 letters!';
+                return;
+            }
+
+            for (let i = 0; i < 5; i++) {
+                const input = inputs[currentRow * 5 + i];
+                const letter = userGuess[i];
+
+                if (letter === wordOfTheDay[i]) {
+                    input.parentElement.classList.add('correct');
+                } else if (wordOfTheDay.includes(letter)) {
+                    input.parentElement.classList.add('present');
+                } else {
+                    input.parentElement.classList.add('absent');
+                }
+            }
+
+            currentRow++;
+            if (userGuess === wordOfTheDay) {
+                document.getElementById('message').innerText = 'Congratulations, you guessed the word!';
+                document.getElementById('submitGuessBtn').style.display = 'none';
+                document.getElementById('playAgainBtn').style.display = 'block';
+            } else if (currentRow >= 6) {
+                document.getElementById('message').innerText = `Game over! The word was ${wordOfTheDay}.`;
+                document.getElementById('submitGuessBtn').style.display = 'none';
+                document.getElementById('playAgainBtn').style.display = 'block';
             }
         }
 
-        // Handle guess submission (implement your own logic)
-        function submitGuess() {
-            // Game logic to check the word goes here
-            document.getElementById('playAgainBtn').style.display = 'block';
+        // Start a new game
+        function resetGame() {
+            startGame();
         }
+
+        // Initialize the game
+        startGame();
     </script>
 
 </body>
